@@ -176,3 +176,62 @@ async def get_photo_id_place(message: Message, state: FSMContext):
 
 
 
+
+
+@router.message(F.text == "✏️ Update Place")
+async def update_place_start(message: Message, state: FSMContext):
+    if await check_admin(message.from_user.id):
+        await message.answer("Choose category name where you want update place:", reply_markup=await get_category_button())
+        await state.set_state(UpdatePlace.get_category_id)
+
+@router.callback_query(UpdatePlace.get_category_id, F.data.startswith("category_") & ~F.data.contains("order"))
+async def update_place_select_cat(callback: CallbackQuery, state: FSMContext):
+    cat_id = callback.data.split("_")[1]
+    await callback.message.answer("Choose a place for updating:", reply_markup=await get_places_edit_button(cat_id))
+    await state.set_state(UpdatePlace.get_place_id)
+    await callback.answer()
+
+@router.callback_query(UpdatePlace.get_place_id, F.data.startswith("place_edit_"))
+async def update_place_select_place(callback: CallbackQuery, state: FSMContext):
+    place_id = callback.data.split("_")[-1]
+    await state.update_data(place_id=place_id)
+    await callback.message.answer("Enter a new name of the place:")
+    await state.set_state(UpdatePlace.get_name)
+    await callback.answer()
+
+@router.message(UpdatePlace.get_name)
+async def update_place_name(message: Message, state: FSMContext):
+    await state.update_data(name=message.text.strip())
+    await message.answer("Enter a new country:")
+    await state.set_state(UpdatePlace.get_city)
+
+@router.message(UpdatePlace.get_city)
+async def update_place_city(message: Message, state: FSMContext):
+    await state.update_data(city=message.text.strip())
+    await message.answer("Enter a new caption:")
+    await state.set_state(UpdatePlace.get_caption)
+
+@router.message(UpdatePlace.get_caption)
+async def update_place_caption(message: Message, state: FSMContext):
+    await state.update_data(caption=message.text.strip())
+    await message.answer("Enter a new photo:")
+    await state.set_state(UpdatePlace.get_photo_id)
+
+@router.message(UpdatePlace.get_photo_id, F.photo)
+async def update_place_finish(message: Message, state: FSMContext):
+    photo = message.photo[-1]
+    data = await state.get_data()
+    status = await update_places_db(data['place_id'], data['name'], data['city'], data['caption'], photo.file_id)
+    if status:
+        await message.answer("✅ Place updated succesfuly!")
+    else:
+        await message.answer("Error while updating place")
+    await state.clear()
+
+
+
+
+
+
+
+

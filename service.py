@@ -113,3 +113,33 @@ async def create_places_db(category_id, title, city, description, file_id):
     finally:
         await conn.close()
 
+
+
+async def get_places_cat_id(category_id):
+    try:
+        conn = await connection_db()
+        places = await conn.fetch("""
+        select * from places 
+        where category_id = $1
+        """, int(category_id))
+        return places
+    except Exception as Error:
+        print(f"Get places by cat_id Error: {Error}")
+    finally:
+        await conn.close()
+
+
+async def get_places_id(place_id):
+    try:
+        conn = await connection_db()
+        place = await conn.fetchrow("""
+        select p.*, c.category_name from places p 
+        join category c on p.category_id = c.category_id 
+        where p.places_id = $1
+        """, int(place_id))
+        return place
+    except Exception as Error:
+        print(f"Get places by id Error: {Error}")
+    finally:
+        await conn.close()
+
