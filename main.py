@@ -34,6 +34,17 @@ async def start_bot(message: Message):
             """, reply_markup=users_key)
 
 
+@dp.message(F.text == "❓ Help")
+@dp.message(Command("help"))
+async def help_cmd(message: Message):
+    await message.answer(
+        """
+        📋 Commands Guide:
+/places — View places by category
+/my_places — View your saved places
+        """)
+    
+    
 async def main():
     await create_table()
     print("Bot started...")

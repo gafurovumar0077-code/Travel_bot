@@ -41,3 +41,60 @@ async def check_admin(telegram_id):
         await conn.close()
 
 
+async def create_category_db(title):
+    try:
+        conn = await connection_db()
+        await conn.execute("""
+        insert into category(category_name) values
+        ($1) 
+        """, title)
+        return True
+    except Exception as Error:
+        print(f"Create category Error: {Error}")
+        return False
+    finally:
+        await conn.close()
+
+
+async def get_category():
+    try:
+        conn = await connection_db()
+        categorys = await conn.fetch("""
+        select * from category
+        """)
+        return categorys
+    except Exception as Error:
+        print(f"Get categorys Error: {Error}")
+    finally:
+        await conn.close()
+
+
+async def update_category_db(category_id, new_title):
+    try:
+        conn = await connection_db()
+        await conn.execute("""
+        update category 
+        set category_name = $1 where category_id = $2
+        """, new_title, int(category_id))
+        return True
+    except Exception as Error:
+        print(f"Update category error: {Error}")
+        return False
+    finally:
+        await conn.close()
+
+
+async def delete_category_db(category_id):
+    try:
+        conn = await connection_db()
+        await conn.execute("""
+        delete from category 
+        where category_id = $1
+        """, int(category_id))
+        return True
+    except Exception as Error:
+        print(f"Delete category error: {Error}")
+        return False
+    finally:
+        await conn.close()
+
