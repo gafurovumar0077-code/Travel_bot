@@ -159,3 +159,18 @@ async def update_places_db(place_id, title, city, description, file_id):
     finally:
         await conn.close()
 
+
+async def delete_places_db(places_id):
+    try:
+        conn = await connection_db()
+        await conn.execute("""
+        delete from places 
+        where places_id = $1
+        """, int(places_id))
+        return True
+    except Exception as Error:
+        print(f"Delete places error: {Error}")
+        return False
+    finally:
+        await conn.close()
+
