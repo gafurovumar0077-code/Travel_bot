@@ -160,10 +160,10 @@ async def get_caption_place(message: Message, state: FSMContext):
 
 @router.message(AddPlace.get_photo_id)
 async def get_photo_id_place(message: Message, state: FSMContext):
-    if not message.photo and message.video:
-        await message.answer("You didn't send a photo or video, please send a photo of the place!")
+    if not message.photo:
+        await message.answer("You didn't send photo please send a photo of the place!")
         return
-    photo = message.photo[-1] and message.video[-1]
+    photo = message.photo[-1]
     await state.update_data(file_id=photo.file_id)
     data = await state.get_data()
     if await create_places_db(data['category_id'], data['name'], data['city'], data['caption'], data['file_id']):
