@@ -119,3 +119,60 @@ async def del_category_finish(callback: CallbackQuery):
 
 
 
+
+
+@router.message(F.text == "➕ Add Place")
+@router.message(Command("add_place"))
+async def add_place_start(message: Message, state: FSMContext):
+    if await check_admin(message.from_user.id):
+        button = await get_category_button()
+        await message.answer("Choose category:", reply_markup=button)
+        await state.set_state(AddPlace.get_catgory_id)
+    else:
+        await message.answer("Only admin can add places!")
+        await state.clear()
+
+@router.callback_query(AddPlace.get_catgory_id, F.data.startswith("category_") & ~F.data.contains("order"))
+async def get_catgory_id_place(callback: CallbackQuery, state: FSMContext):
+    cat_id = callback.data.split("_")[1]
+    await state.update_data(category_id=cat_id)
+    await callback.answer("Category choosed")
+    await callback.message.answer("Enter a name place for traveling:")
+    await state.set_state(AddPlace.get_name)
+
+@router.message(AddPlace.get_name)
+async def get_name_place(message: Message, state: FSMContext):
+    await state.update_data(name=message.text.strip())
+    await message.answer("Enter the country:")
+    await state.set_state(AddPlace.get_city)
+
+@router.message(AddPlace.get_city)
+async def get_city_place(message: Message, state: FSMContext):
+    await state.update_data(city=message.text.strip())
+    await message.answer("Enter description of place:")
+    await state.set_state(AddPlace.get_caption)
+
+@router.message(AddPlace.get_caption)
+async def get_caption_place(message: Message, state: FSMContext):
+    await state.update_data(caption=message.text.strip())
+    await message.answer("Enter a photo or video:")
+    await state.set_state(AddPlace.get_photo_id)
+
+@router.message(AddPlace.get_photo_id)
+async def get_photo_id_place(message: Message, state: FSMContext):
+    if not message.photo and message.video:
+        await message.answer("You didn't send a photo or video, please send a photo of the place!")
+        return
+    photo = message.photo[-1] and message.video[-1]
+    await state.update_data(file_id=photo.file_id)
+    data = await state.get_data()
+    if await create_places_db(data['category_id'], data['name'], data['city'], data['caption'], data['file_id']):
+        await message.answer("Place added succesfuly!")
+    else:
+        await message.answer("Error while adding place!")
+    await state.clear()
+
+
+
+
+

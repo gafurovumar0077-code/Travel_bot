@@ -69,3 +69,13 @@ async def get_category_delete_button():
         keyboards.append([InlineKeyboardButton(text=f"🗑️ {category['category_name']}", callback_data=f"cat_del_{category['category_id']}")])
     keybor = InlineKeyboardMarkup(inline_keyboard=keyboards)
     return keybor
+
+
+async def get_places_edit_button(cat_id):
+    data = await get_places_cat_id(cat_id)
+    keyboards = []
+    for place in data:
+        keyboards.append([InlineKeyboardButton(text=f"✏️ {place['title']}", callback_data=f"place_edit_{place['places_id']}")])
+    keybor = InlineKeyboardMarkup(inline_keyboard=keyboards)
+    return keybor
+

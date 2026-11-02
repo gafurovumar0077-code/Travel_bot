@@ -98,3 +98,18 @@ async def delete_category_db(category_id):
     finally:
         await conn.close()
 
+
+async def create_places_db(category_id, title, city, description, file_id):
+    try:
+        conn = await connection_db()
+        await conn.execute("""
+        insert into places(category_id, title, city, description, file_id) values
+        ($1, $2, $3, $4, $5) 
+        """, int(category_id), title, city, description, file_id)
+        return True
+    except Exception as Error:
+        print(f"Create place Error: {Error}")
+        return False
+    finally:
+        await conn.close()
+
