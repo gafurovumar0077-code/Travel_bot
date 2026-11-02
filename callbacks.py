@@ -32,7 +32,7 @@ async def show_place(callback: CallbackQuery):
     place_id = callback.data.split("_")[-1]
     data = await get_places_id(place_id)
     if not data:
-        await callback.answer("Can't find any places..", show_alert=True)
+        await callback.answer("Can't find any places..")
         return
     caption_text = f"""
 📍   {data['title']}  
@@ -40,5 +40,18 @@ async def show_place(callback: CallbackQuery):
 📁   Category:   {data['category_name']}
 📝   Caption:  {data['description']}
 """
-    await callback.message.answer_photo(photo=data['file_id'], caption=caption_text)
+    await callback.message.answer_photo(photo=data['file_id'], caption=caption_text, reply_markup=await get_saved_places_button(place_id))
     await callback.answer()
+
+@router.callback_query(F.data.startswith('save_place_'))
+async def save_place_handler(callback: CallbackQuery):
+    place_id = callback.data.split("_")[-1]
+    await save_place_user(callback.from_user.id, place_id)
+    await callback.answer("⭐ Place saved in Favorites!")
+
+@router.callback_query(F.data.startswith('del_fav_'))
+async def delete_favorite_handler(callback: CallbackQuery):
+    place_id = callback.data.split("_")[-1]
+    await delete_saved_place_db(callback.from_user.id, place_id)
+    await callback.answer("🗑️ Place removed from Favorites!")
+    await callback.message.delete()

@@ -253,3 +253,20 @@ async def del_place_finish(callback: CallbackQuery):
     await delete_places_db(place_id)
     await callback.message.answer("🗑️ Place deleted succesfuly!")
     await callback.answer()
+    
+@router.message(F.text == "⭐ Favorites!")
+async def show_favorites(message: Message):
+    places = await get_my_places_db(message.from_user.id)
+    if not places:
+        await message.answer("You don't have any favorites ⭐️")
+        return
+    
+    keyboards = []
+    for place in places:
+        keyboards.append([
+            InlineKeyboardButton(text=f"📍 {place['title']} ({place['city']})", callback_data=f"place_show_{place['places_id']}"),
+            InlineKeyboardButton(text="Delete From Favorites ❌", callback_data=f"del_fav_{place['places_id']}")
+        ])
+    
+    keyboard = InlineKeyboardMarkup(inline_keyboard=keyboards)
+    await message.answer("⭐ Your saved places:", reply_markup=keyboard)

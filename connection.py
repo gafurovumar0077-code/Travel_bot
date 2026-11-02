@@ -56,7 +56,7 @@ async def create_table():
             saved_at timestamp default now()
         );
         """)
-        print("Tables created successfully!")
+        print("Tables created succesfully!")
     except Exception as Error:
         print(f"Create Error: {Error}")
     finally:

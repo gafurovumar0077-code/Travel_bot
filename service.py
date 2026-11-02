@@ -174,3 +174,63 @@ async def delete_places_db(places_id):
     finally:
         await conn.close()
 
+
+async def save_place_user(telegram_id, place_id):
+    try:
+        conn = await connection_db()
+        user = await conn.fetchrow("""
+select user_id from users
+where telegram_id = $1""",str(telegram_id))
+        await conn.execute("""
+        insert into saved_places(user_id, places_id) values
+        ($1, $2)
+        """, user['user_id'], int(place_id))
+    except Exception as Error:
+        print(f"Save place error: {Error}")
+    finally:
+        await conn.close()
+
+
+
+
+
+async def get_my_places_db(telegram_id):
+    try:
+        conn = await connection_db()
+        user = await conn.fetchrow("""
+select user_id from users 
+where telegram_id = $1""", str(telegram_id))
+        places = await conn.fetch("""
+        select p.places_id, p.title, p.city from saved_places s
+        join places p on s.places_id = p.places_id
+        where s.user_id = $1
+        """, user['user_id'])
+        return places
+    except Exception as Error:
+        print(f"Get my places error: {Error}")
+        return []
+    finally:
+        await conn.close()
+        
+
+
+
+async def delete_saved_place_db(telegram_id, place_id):
+    conn = await connection_db()
+    try:
+        user = await conn.fetchrow("""
+select user_id from users 
+where telegram_id = $1""", str(telegram_id))
+        if user:
+            await conn.execute(
+                """
+delete from saved_places 
+where user_id = $1 and places_id = $2""", user['user_id'], int(place_id)
+            )
+            return True
+        return False
+    except Exception as Error:
+        print(f"Delete saved place error: {Error}")
+        return False
+    finally:
+        await conn.close()

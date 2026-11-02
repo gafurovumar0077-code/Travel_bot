@@ -3,7 +3,7 @@ from service import *
 
 users_key = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="🌍 Places")],
+        [KeyboardButton(text="🌍 Places"), KeyboardButton(text="⭐ Favorites!")],
         [KeyboardButton(text="❓ Help"), KeyboardButton(text="❌ Cancel")]
     ],
     resize_keyboard=True
@@ -15,7 +15,7 @@ admin_key = ReplyKeyboardMarkup(
         [KeyboardButton(text="➕ Add Place"), KeyboardButton(text="✏️ Update Place")],
         [KeyboardButton(text="🗑️ Delete Place"), KeyboardButton(text="📁 Add Category")],
         [KeyboardButton(text="✏️ Update Category"), KeyboardButton(text="🗑️ Delete Category")],
-        [KeyboardButton(text="🌍 Places")],
+        [KeyboardButton(text="🌍 Places"), KeyboardButton(text="⭐ Favorites!")],
         [KeyboardButton(text="❓ Help"), KeyboardButton(text="❌ Cancel")]
     ],
     resize_keyboard=True
@@ -38,7 +38,7 @@ async def get_places_order_button(cat_id):
     keybor = InlineKeyboardMarkup(inline_keyboard=keyboards)
     return keybor
 
-def get_saved_places_button(place_id):
+async def get_saved_places_button(place_id):
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="⭐ Save in favorites", callback_data=f"save_place_{place_id}")]
