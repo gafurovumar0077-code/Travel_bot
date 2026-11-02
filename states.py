@@ -132,7 +132,7 @@ async def add_place_start(message: Message, state: FSMContext):
         await message.answer("Only admin can add places!")
         await state.clear()
 
-@router.callback_query(AddPlace.get_catgory_id, F.data.startswith("category_") & ~F.data.contains("order"))
+@router.callback_query(AddPlace.get_catgory_id, F.data.startswith("category_"))
 async def get_catgory_id_place(callback: CallbackQuery, state: FSMContext):
     cat_id = callback.data.split("_")[1]
     await state.update_data(category_id=cat_id)
@@ -184,7 +184,7 @@ async def update_place_start(message: Message, state: FSMContext):
         await message.answer("Choose category name where you want update place:", reply_markup=await get_category_button())
         await state.set_state(UpdatePlace.get_category_id)
 
-@router.callback_query(UpdatePlace.get_category_id, F.data.startswith("category_") & ~F.data.contains("order"))
+@router.callback_query(UpdatePlace.get_category_id, F.data.startswith("category_"))
 async def update_place_select_cat(callback: CallbackQuery, state: FSMContext):
     cat_id = callback.data.split("_")[1]
     await callback.message.answer("Choose a place for updating:", reply_markup=await get_places_edit_button(cat_id))
@@ -241,7 +241,7 @@ async def del_place_start(message: Message):
     if await check_admin(message.from_user.id):
         await message.answer("Choose category name where you want delete place:", reply_markup=await get_category_button())
 
-@router.callback_query(F.data.startswith("category_") & ~F.data.contains("order"))
+@router.callback_query(F.data.startswith("category_"))
 async def del_place_list(callback: CallbackQuery):
     cat_id = callback.data.split("_")[1]
     await callback.message.answer("Choose place for deleting:", reply_markup=await get_places_delete_button(cat_id))

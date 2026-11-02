@@ -18,7 +18,7 @@ async def show_menu(message: Message):
 
 
 
-@router.callback_query(F.data.startswith('category_order_'))
+@router.callback_query(F.data.startswith('categoris_'))
 async def show_menu_places(callback: CallbackQuery):
     cat_id = callback.data.split("_")[-1]
     await callback.message.answer("Choose a place:", reply_markup=await get_places_order_button(cat_id))

@@ -25,7 +25,7 @@ async def get_category_places_button():
     data = await get_category()
     keyboards = []
     for category in data:
-        keyboards.append([InlineKeyboardButton(text=f"{category['category_name']}", callback_data=f"category_order_{category['category_id']}")])
+        keyboards.append([InlineKeyboardButton(text=f"{category['category_name']}", callback_data=f"categoris_{category['category_id']}")])
     keybor = InlineKeyboardMarkup(inline_keyboard=keyboards)
     return keybor
 
