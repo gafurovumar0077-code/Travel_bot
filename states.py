@@ -235,3 +235,21 @@ async def update_place_finish(message: Message, state: FSMContext):
 
 
 
+
+@router.message(F.text == "🗑️ Delete Place")
+async def del_place_start(message: Message):
+    if await check_admin(message.from_user.id):
+        await message.answer("Choose category name where you want delete place:", reply_markup=await get_category_button())
+
+@router.callback_query(F.data.startswith("category_") & ~F.data.contains("order"))
+async def del_place_list(callback: CallbackQuery):
+    cat_id = callback.data.split("_")[1]
+    await callback.message.answer("Choose place for deleting:", reply_markup=await get_places_delete_button(cat_id))
+    await callback.answer()
+
+@router.callback_query(F.data.startswith("del_place_"))
+async def del_place_finish(callback: CallbackQuery):
+    place_id = callback.data.split("_")[-1]
+    await delete_places_db(place_id)
+    await callback.message.answer("🗑️ Place deleted succesfuly!")
+    await callback.answer()

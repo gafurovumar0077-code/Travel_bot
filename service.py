@@ -143,3 +143,19 @@ async def get_places_id(place_id):
     finally:
         await conn.close()
 
+
+async def update_places_db(place_id, title, city, description, file_id):
+    try:
+        conn = await connection_db()
+        await conn.execute("""
+        update places 
+        set title = $1, city = $2, description = $3, file_id = $4
+        where places_id = $5
+        """, title, city, description, file_id, int(place_id))
+        return True
+    except Exception as Error:
+        print(f"Update places error: {Error}")
+        return False
+    finally:
+        await conn.close()
+
