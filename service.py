@@ -176,15 +176,15 @@ async def delete_places_db(places_id):
 
 
 async def save_place_user(telegram_id, place_id):
+    conn = await connection_db()
     try:
-        conn = await connection_db()
         user = await conn.fetchrow("""
-select user_id from users
-where telegram_id = $1""",str(telegram_id))
-        await conn.execute("""
-        insert into saved_places(user_id, places_id) values
-        ($1, $2)
-        """, user['user_id'], int(place_id))
+select user_id from users 
+where telegram_id = $1""", str(telegram_id))
+        if user:
+            await conn.execute("""
+insert into saved_places(user_id, places_id) values 
+($1, $2)""", user['user_id'], int(place_id))
     except Exception as Error:
         print(f"Save place error: {Error}")
     finally:
@@ -192,14 +192,14 @@ where telegram_id = $1""",str(telegram_id))
 
 
 
-
-
 async def get_my_places_db(telegram_id):
+    conn = await connection_db()
     try:
-        conn = await connection_db()
         user = await conn.fetchrow("""
 select user_id from users 
 where telegram_id = $1""", str(telegram_id))
+        if not user:
+            return []
         places = await conn.fetch("""
         select p.places_id, p.title, p.city from saved_places s
         join places p on s.places_id = p.places_id
